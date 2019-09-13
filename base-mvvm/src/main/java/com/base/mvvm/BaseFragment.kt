@@ -28,6 +28,11 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
      */
     abstract fun getLayoutId(): Int
 
+    /**
+     * Set BR.variable ID for data binding.
+     */
+    abstract fun brVariableId():Int
+
 
     /**
      * Initiate view. This method is called in child classes for initiate view of child fragment
@@ -82,9 +87,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
 
         viewLifecycleOwner.lifecycle.addObserver(mViewModel)
 
-
-        //TODO: Uncomment this line after build succeed
-        //mViewBinding.setVariable(BR.viewModel, mViewModel)
+        mViewBinding.setVariable(brVariableId(), mViewModel)
         mViewBinding.lifecycleOwner = this
         view = mViewBinding.root
 

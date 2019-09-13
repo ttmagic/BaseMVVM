@@ -101,4 +101,15 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
 
+    override fun onBackPressed() {
+        if (navController() != null) {
+            val canPop = navController()!!.popBackStack()
+            if (!canPop) {
+                super.onBackPressed()
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
+
 }

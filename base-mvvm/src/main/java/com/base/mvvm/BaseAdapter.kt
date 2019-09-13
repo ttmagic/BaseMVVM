@@ -17,6 +17,11 @@ abstract class BaseAdapter<T>(listener: ClickListener?, diffCallback: DiffUtil.I
     ListAdapter<T, BaseAdapter.BaseViewHolder<T>>(diffCallback) {
     private val mListener = listener
 
+    /**
+     * Set BR.variable ID for data binding.
+     */
+    abstract fun brVariableId():Int
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T> {
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<ViewDataBinding>(layoutInflater, viewType, parent, false)
@@ -24,7 +29,7 @@ abstract class BaseAdapter<T>(listener: ClickListener?, diffCallback: DiffUtil.I
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position),brVariableId())
         holder.itemView.setOnClickListener {
             mListener?.onItemClick(position, getItem(position))
         }
@@ -32,9 +37,8 @@ abstract class BaseAdapter<T>(listener: ClickListener?, diffCallback: DiffUtil.I
 
 
     class BaseViewHolder<T>(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: T) {
-            //TODO: Uncomment this line after build succeed
-            //binding.setVariable(BR.item, item)
+        fun bind(item: T, brVariableId: Int) {
+            binding.setVariable(brVariableId, item)
             binding.executePendingBindings()
         }
     }
