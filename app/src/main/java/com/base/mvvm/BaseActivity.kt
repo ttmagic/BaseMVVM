@@ -1,0 +1,63 @@
+package com.base.mvvm
+
+import android.content.pm.PackageManager
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.base.util.L
+import com.base.util.PermissionUtil
+import com.base.util.ifGranted
+
+/**
+ * Base class for Activity.
+ * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
+ */
+abstract class BaseActivity : AppCompatActivity() {
+
+
+    private fun setTransparentStatusBar() {
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+    }
+
+
+    private val permissionMap = HashMap<Int, (Boolean) -> Unit>()
+    /**
+     * Use this method to request a permission.
+     * @param permission: Manifest.permission.
+     * @param onPermissionResult : callback when request permission is done.
+     */
+    fun requestPermission(permission: String, onPermissionResult: (granted: Boolean) -> Unit) {
+        if (this.ifGranted(permission)) {
+            onPermissionResult(true)
+            return
+        } else {
+            val requestCode = PermissionUtil.getRequestCode(permission)
+            permissionMap[requestCode] = onPermissionResult
+
+            ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        L.d("requestCode: $requestCode permissions: $permissions grantResults: $grantResults")
+        if (!permissionMap.contains(requestCode)) return
+
+        if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            // permission was granted
+            permissionMap[requestCode]!!.invoke(true)
+        } else {
+            // permission denied
+            permissionMap[requestCode]!!.invoke(false)
+        }
+        permissionMap.remove(requestCode)
+
+    }
+
+
+}
