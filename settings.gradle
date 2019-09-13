@@ -1,2 +1,2 @@
-include ':app'
+include ':base-mvvm'
 rootProject.name='BaseMVVM'
