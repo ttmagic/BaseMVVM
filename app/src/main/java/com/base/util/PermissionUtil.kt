@@ -5,6 +5,8 @@ import android.Manifest
 
 object PermissionUtil {
 
+    const val MULTI_PERMISSION_REQUEST_CODE = 6969
+
     /**
      * Get permission request code by permission.
      * @param permission: Manifest.permission.

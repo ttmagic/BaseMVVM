@@ -1,18 +1,17 @@
 package com.base.mvvm
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.base.util.L
-import com.base.util.PermissionUtil
-import com.base.util.ifGranted
+import androidx.navigation.NavController
+import com.base.util.toast
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -92,45 +91,56 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         return view
     }
 
+    /**
+     * Get nav controller from activity.
+     */
+    fun navController(): NavController? {
+        if (activity == null || activity !is BaseActivity) return null
+        return (activity as BaseActivity).navController()
+    }
 
-    private val permissionMap = HashMap<Int, (Boolean) -> Unit>()
+
     /**
      * Use this method to request a permission.
      * @param permission: Manifest.permission.
      * @param onPermissionResult : callback when request permission is done.
      */
     fun requestPermission(permission: String, onPermissionResult: (granted: Boolean) -> Unit) {
-        if (activity == null) return
-        if (requireContext().ifGranted(permission)) {
-            onPermissionResult(true)
-            return
-        } else {
-            val requestCode = PermissionUtil.getRequestCode(permission)
-            permissionMap[requestCode] = onPermissionResult
-
-            requestPermissions(arrayOf(permission), requestCode)
-        }
+        if (activity == null||activity !is BaseActivity) return
+        (activity as BaseActivity).requestPermission(permission, onPermissionResult)
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+    /**
+     * Use this method to request a permission.
+     * @param permissions: Multiple Manifest.permission.
+     * @param onPermissionsResult : callback when request permission is done.
+     */
+    fun requestMultiPermissions(
+        vararg permissions: String,
+        onPermissionsResult: (allGranted: Boolean) -> Unit
     ) {
-        L.d("requestCode: $requestCode permissions: $permissions grantResults: $grantResults")
-        if (!permissionMap.contains(requestCode)) return
-
-        if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-            // permission was granted
-            permissionMap[requestCode]!!.invoke(true)
-        } else {
-            // permission denied
-            permissionMap[requestCode]!!.invoke(false)
+        if (activity == null || activity !is BaseActivity) return
+        (activity as BaseActivity).requestMultiPermissions(*permissions) {
+            onPermissionsResult(it)
         }
-        permissionMap.remove(requestCode)
-
     }
+
+
+    /**
+     * Show a toast.
+     */
+    fun toast(msg: String, lengthLong: Boolean = false) {
+        context.toast(msg, lengthLong)
+    }
+
+    /**
+     * Show a toast.
+     */
+    fun toast(@StringRes msgResId: Int, lengthLong: Boolean = false) {
+        context.toast(msgResId, lengthLong)
+    }
+
 
 
     private fun getGenericType(clazz: Class<*>): Class<*> {

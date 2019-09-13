@@ -1,9 +1,11 @@
 package com.base.mvvm
 
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
 import com.base.util.L
 import com.base.util.PermissionUtil
 import com.base.util.ifGranted
@@ -14,10 +16,15 @@ import com.base.util.ifGranted
  */
 abstract class BaseActivity : AppCompatActivity() {
 
+    /**
+     * Specify nav controller.
+     */
+    abstract fun navController(): NavController?
 
-    private fun setTransparentStatusBar() {
+    fun setTransparentStatusBar() {
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        window.statusBarColor = Color.TRANSPARENT
     }
 
 
@@ -39,6 +46,20 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Use this method to request a permission.
+     * @param permissions: Multiple Manifest.permission.
+     * @param onPermissionsResult : callback when request permission is done.
+     */
+    fun requestMultiPermissions(
+        vararg permissions: String,
+        onPermissionsResult: (allGranted: Boolean) -> Unit
+    ) {
+        val requestCode = PermissionUtil.MULTI_PERMISSION_REQUEST_CODE
+        ActivityCompat.requestPermissions(this, permissions, requestCode)
+        permissionMap[requestCode] = onPermissionsResult
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -47,6 +68,26 @@ abstract class BaseActivity : AppCompatActivity() {
     ) {
         L.d("requestCode: $requestCode permissions: $permissions grantResults: $grantResults")
         if (!permissionMap.contains(requestCode)) return
+
+        //Multiple permissions
+        if (requestCode == PermissionUtil.MULTI_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty()) {
+                var allAreGranted = true
+                grantResults.forEach {
+                    if (it != PackageManager.PERMISSION_GRANTED) {
+                        allAreGranted = false
+                        return@forEach
+                    }
+                }
+                permissionMap[requestCode]!!.invoke(allAreGranted)
+            } else {
+                // all permissions denied
+                permissionMap[requestCode]!!.invoke(false)
+            }
+            permissionMap.remove(requestCode)
+            return
+        }
+
 
         if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             // permission was granted
