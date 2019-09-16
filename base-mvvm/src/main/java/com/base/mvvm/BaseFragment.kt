@@ -26,7 +26,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
     /**
      * Get layout resource id for fragment
      */
-    abstract fun getLayoutId(): Int
+    abstract fun layoutId(): Int
 
     /**
      * Set BR.variable ID for data binding.
@@ -65,7 +65,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return setupView(inflater, container, getLayoutId())
+        return setupView(inflater, container, layoutId())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

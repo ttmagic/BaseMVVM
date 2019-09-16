@@ -18,6 +18,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     /**
      * Specify nav controller.
+     * https://developer.android.com/guide/navigation/navigation-getting-started
      */
     abstract fun navController(): NavController?
 
