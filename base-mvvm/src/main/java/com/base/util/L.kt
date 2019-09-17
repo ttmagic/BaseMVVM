@@ -1,7 +1,6 @@
 package com.base.util
 
 import android.util.Log
-import com.base.BuildConfig
 
 /**
  * Helper class for Logging.
@@ -12,8 +11,11 @@ object L {
     private var mMethodName: String = ""
     private var mLineNumber: Int = 0
 
-    private val mIsDebugging: Boolean
-        get() = BuildConfig.DEBUG
+    private var mIsDebugging: Boolean = true
+
+    fun setDebugging(debugging: Boolean) {
+        mIsDebugging = debugging
+    }
 
 
     fun e(message: String) {
