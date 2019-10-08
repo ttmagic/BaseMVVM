@@ -19,63 +19,81 @@ object L {
 
 
     fun e(message: String) {
-        if (!mIsDebugging)
-            return
+        if (!mIsDebugging) return
 
         // Throwable instance must be created before any methods
-        getMethodNames(Throwable().stackTrace)
+        getLogInfo(Throwable().stackTrace)
         Log.e(mClassName, createLog(message))
     }
 
     fun i(message: String) {
-        if (!mIsDebugging)
-            return
+        if (!mIsDebugging) return
 
-        getMethodNames(Throwable().stackTrace)
+        getLogInfo(Throwable().stackTrace)
         Log.i(mClassName, createLog(message))
     }
 
     fun v(message: String) {
-        if (!mIsDebugging)
-            return
+        if (!mIsDebugging) return
 
-        getMethodNames(Throwable().stackTrace)
+        getLogInfo(Throwable().stackTrace)
         Log.v(mClassName, createLog(message))
     }
 
     fun w(message: String) {
-        if (!mIsDebugging)
-            return
+        if (!mIsDebugging) return
 
-        getMethodNames(Throwable().stackTrace)
+        getLogInfo(Throwable().stackTrace)
         Log.w(mClassName, createLog(message))
     }
 
     fun d(obj: Any) {
-        if (!mIsDebugging)
-            return
+        if (!mIsDebugging) return
 
-        getMethodNames(Throwable().stackTrace)
+        getLogInfo(Throwable().stackTrace)
         Log.d(mClassName, createLog(obj.toString()))
     }
 
 
     private fun createLog(log: String): String {
-        val buffer = StringBuffer()
-        buffer.append("[")
-        buffer.append(mMethodName)
-        buffer.append(":")
-        buffer.append(mLineNumber)
-        buffer.append("] ")
-        buffer.append(log)
-
-        return buffer.toString()
+        return "[$mMethodName:$mLineNumber] $log"
     }
 
-    private fun getMethodNames(sElements: Array<StackTraceElement>) {
-        mClassName = sElements[1].fileName
-        mMethodName = sElements[1].methodName
+    private fun getLogInfo(sElements: Array<StackTraceElement>) {
+        mClassName = getClassName(sElements[1].className) ?: sElements[1].fileName
+        mMethodName = getMethodName(sElements[1].className) ?: sElements[1].methodName
         mLineNumber = sElements[1].lineNumber
+    }
+
+    /**
+     * get class, method name from StackTraceElement className
+     * example input: com.app.MqttClient$subscribeTopic$1
+     * return: MqttClient
+     */
+    private fun getClassName(input: String): String? {
+        if (!input.contains(".")) return null
+        val classOutput: String
+        val className = input.split(".").last()
+        classOutput = if (className.contains("$")) {
+            className.split("$")[0]
+        } else {
+            className
+        }
+        return classOutput
+    }
+
+    /**
+     * get method name from StackTraceElement className
+     * example input: com.app.MqttClient$subscribeTopic$1
+     * return: subscribeTopic
+     */
+    private fun getMethodName(input: String): String? {
+        val className = input.split(".").last()
+        return if (className.contains("$")) {
+            className.split("$")[1]
+        } else {
+            null
+        }
     }
 
 }

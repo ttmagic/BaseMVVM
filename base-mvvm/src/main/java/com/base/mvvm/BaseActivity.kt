@@ -2,9 +2,15 @@ package com.base.mvvm
 
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.SparseArray
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.util.contains
+import androidx.core.util.set
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.base.util.L
 import com.base.util.PermissionUtil
@@ -15,6 +21,8 @@ import com.base.util.ifGranted
  * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
  */
 abstract class BaseActivity : AppCompatActivity() {
+
+    private val connectionLiveData by lazy { ConnectionLiveData(applicationContext) }
 
     /**
      * Specify nav controller.
@@ -28,8 +36,22 @@ abstract class BaseActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
     }
 
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        connectionLiveData.observe(this, Observer {
+            onNetworkConnected(it)
+        })
+    }
 
-    private val permissionMap = HashMap<Int, (Boolean) -> Unit>()
+    /**
+     * Listen for network change event.
+     * @param isConnected: true if connected, false otherwise.
+     */
+    open fun onNetworkConnected(isConnected: Boolean) {
+
+    }
+
+    private val permissionMap = SparseArray<(Boolean) -> Unit>()
     /**
      * Use this method to request a permission.
      * @param permission: Manifest.permission.
