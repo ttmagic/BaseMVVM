@@ -1,6 +1,7 @@
 package com.base.mvvm
 
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -134,5 +135,11 @@ abstract class BaseActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+    fun isPortrait(): Boolean =
+        resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+    fun isLandscape(): Boolean =
+        resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
 }

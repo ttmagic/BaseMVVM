@@ -4,6 +4,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.base.mvvm.LiveEvent
 
+/**
+ * Same as LiveData.observe, but include removeObservers.
+ */
 fun LiveEvent<Any>.subscribe(lifecycleOwner: LifecycleOwner, observer: Observer<Any?>) {
     removeObservers(lifecycleOwner)
     observe(lifecycleOwner, observer)

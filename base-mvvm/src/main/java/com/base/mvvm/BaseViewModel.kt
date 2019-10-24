@@ -3,21 +3,27 @@ package com.base.mvvm
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.*
+import com.base.util.L
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import retrofit2.Response
 
 
 /**
  * Base class for ViewModel. Support lifecycle aware.
  * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
  */
-abstract class BaseViewModel(private val app: Application) : AndroidViewModel(app),    LifecycleObserver {
+abstract class BaseViewModel(app: Application) : AndroidViewModel(app), LifecycleObserver {
     val viewEvent = LiveEvent<Event>()
 
     val context: Context = app.applicationContext     //Use this to get application context from ViewModel
 
-    val loading = MutableLiveData<Boolean>()
+    private val _loading = MutableLiveData<Boolean>()
+    val loading :LiveData<Boolean> = _loading
 
     fun isLoading(isLoading: Boolean = true) {
-        loading.value = isLoading
+        _loading.value = isLoading
     }
 
 
@@ -27,8 +33,6 @@ abstract class BaseViewModel(private val app: Application) : AndroidViewModel(ap
     fun sendEvent(event: Event) {
         viewEvent.postValue(event)
     }
-
-
 
 
 //-----------------------
@@ -67,5 +71,54 @@ abstract class BaseViewModel(private val app: Application) : AndroidViewModel(ap
 
     }
 
+    /**
+     * Wrapper method for launch coroutines.
+     * Support show/hide loading, catch exceptions.
+     * Handle exceptions in onCoroutinesExceptions.
+     */
+    fun coroutines(block: suspend CoroutineScope.() -> Unit): Job {
+        return viewModelScope.launch {
+            try {
+                isLoading(true)
+                block()
+            } catch (e: Exception) {
+                e.message?.let {
+                    L.e(it)
+                }
+                onCoroutinesExceptions(e)
+                isLoading(false)
 
+            }
+            isLoading(false)
+        }
+    }
+
+    /**
+     * Handle exception when launch coroutines.
+     */
+    open fun onCoroutinesExceptions(e: Exception) {
+
+    }
+}
+
+/**
+ * Extension function, Do something when network call response succeed.
+ */
+fun <T> Response<T>.onSucceed(doSth: (T) -> Unit): Response<T> {
+    L.d("Response code: ${code()} body: ${body()}")
+    if (isSuccessful && body() != null) {
+        doSth(body()!!)
+    }
+    return this
+}
+
+
+/**
+ * Extension function, Do something when network call response failed.
+ */
+fun <T> Response<T>.onFailed(errCode: (Int) -> Unit): Response<T> {
+    if (!isSuccessful || body() == null) {
+        errCode(code())
+    }
+    return this
 }

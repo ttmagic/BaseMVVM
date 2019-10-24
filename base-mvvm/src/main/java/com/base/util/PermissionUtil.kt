@@ -1,6 +1,7 @@
 package com.base.util
 
 import android.Manifest
+import android.os.Build
 
 
 object PermissionUtil {
@@ -24,14 +25,9 @@ object PermissionUtil {
      * https://developer.android.com/reference/android/Manifest.permission
      */
     private val dangerousPermissions = arrayListOf(
-        Manifest.permission.ACCEPT_HANDOVER,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_MEDIA_LOCATION,
-        Manifest.permission.ACTIVITY_RECOGNITION,
         Manifest.permission.ADD_VOICEMAIL,
-        Manifest.permission.ANSWER_PHONE_CALLS,
         Manifest.permission.BODY_SENSORS,
         Manifest.permission.CALL_PHONE,
         Manifest.permission.CAMERA,
@@ -40,7 +36,6 @@ object PermissionUtil {
         Manifest.permission.READ_CALL_LOG,
         Manifest.permission.READ_CONTACTS,
         Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.READ_PHONE_NUMBERS,
         Manifest.permission.READ_PHONE_STATE,
         Manifest.permission.READ_SMS,
         Manifest.permission.RECEIVE_MMS,
@@ -53,5 +48,22 @@ object PermissionUtil {
         Manifest.permission.WRITE_CALL_LOG,
         Manifest.permission.WRITE_CONTACTS,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
+    ).apply {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                add(Manifest.permission.READ_PHONE_NUMBERS)
+                add(Manifest.permission.ANSWER_PHONE_CALLS)
+            }
+
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
+                add(Manifest.permission.ACCEPT_HANDOVER)
+            }
+
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+                add(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }
+    }
 }
