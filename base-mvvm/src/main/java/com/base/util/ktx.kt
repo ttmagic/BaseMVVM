@@ -11,10 +11,16 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 
 
@@ -218,4 +224,140 @@ fun EditText?.moveCursorEnd() {
     val textLength = text.length
     this.setSelection(textLength)
 }
+
+
+/**
+ * Add divider for RecyclerView.
+ */
+fun RecyclerView.addItemDividers() {
+    addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+}
+
+/**
+ * Set text color resource.
+ */
+fun TextView.setTextColorRes(@ColorRes colorRes: Int) {
+    this.setTextColor(ContextCompat.getColor(this.context, colorRes))
+}
+
+
+
+//-----------------------------------------------------------
+//--Extensions for LiveData of Int.
+
+operator fun MutableLiveData<Int>.dec(): MutableLiveData<Int> {
+    var currValue = this.value ?: 0
+    currValue--
+    postValue(currValue)
+    return this
+}
+
+operator fun MutableLiveData<Int>.plusAssign(amount: Int) {
+    var currValue = this.value ?: 0
+    currValue += amount
+    postValue(currValue)
+}
+
+operator fun MutableLiveData<Int>.minusAssign(amount: Int) {
+    var currValue = this.value ?: 0
+    currValue -= amount
+    postValue(currValue)
+}
+
+operator fun MutableLiveData<Int>.inc(): MutableLiveData<Int> {
+    var currValue = this.value ?: 0
+    currValue++
+    postValue(currValue)
+    return this
+}
+
+
+
+//--Extensions for LiveData of Boolean.
+/**
+ * Switch true/false state for MutableLiveData of Boolean.
+ */
+fun MutableLiveData<Boolean>.switchState() {
+    var currState = value ?: false
+    currState = !currState
+    postValue(currState)
+}
+
+
+
+//--Extensions for LiveData of ArrayList.
+
+/**
+ * Get size of list inside liveData.
+ */
+val <T> MutableLiveData<ArrayList<T>>.size: Int
+    get() {
+        if(this.value.isNullOrEmpty())return 0
+        return this.value!!.size
+    }
+
+/**
+ * Post value again to notify observers.
+ */
+fun <T> MutableLiveData<T>.notifyDataSetChanged() {
+    this.notifyObservers()
+}
+
+/**
+ * Post value again to notify observers.
+ */
+fun <T> MutableLiveData<T>.notifyObservers() {
+    this.postValue(this.value)
+}
+
+
+/**
+ * Get item at position.
+ */
+operator fun <T> MutableLiveData<ArrayList<T>>.get(position: Int): T? {
+    if (this.value.isNullOrEmpty()) return null
+    if (this.value!!.size <= position) return null
+    return this.value!![position]
+}
+
+
+/**
+ * Add item at position, notify observers.
+ */
+fun <T> MutableLiveData<ArrayList<T>>.add(position: Int = 0, item: T) {
+    val temp = this.value ?: arrayListOf()
+    temp.add(position, item)
+    postValue(temp)
+}
+
+/**
+ * Add item to the end of list, notify observers.
+ */
+fun <T> MutableLiveData<ArrayList<T>>.add(item: T) {
+    val temp = this.value ?: arrayListOf()
+    temp.add(item)
+    postValue(temp)
+}
+
+/**
+ * Add all item to the end of list, notify observers.
+ */
+fun <T> MutableLiveData<ArrayList<T>>.addAll(items: Collection<T>) {
+    val temp = this.value ?: arrayListOf()
+    temp.addAll(items)
+    postValue(temp)
+}
+
+/**
+ * Add all item at a position, notify observers.
+ */
+fun <T> MutableLiveData<ArrayList<T>>.addAll(position: Int, items: Collection<T>) {
+    val temp = this.value ?: arrayListOf()
+    temp.addAll(position, items)
+    postValue(temp)
+}
+
+
+
+
 

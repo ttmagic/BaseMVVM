@@ -23,7 +23,7 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
     val loading :LiveData<Boolean> = _loading
 
     fun isLoading(isLoading: Boolean = true) {
-        _loading.value = isLoading
+        _loading.postValue(isLoading)
     }
 
 

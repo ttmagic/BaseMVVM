@@ -1,5 +1,6 @@
 package com.base.mvvm
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -23,7 +24,9 @@ import com.base.util.ifGranted
  */
 abstract class BaseActivity : AppCompatActivity() {
 
-    private val connectionLiveData by lazy { ConnectionLiveData(applicationContext) }
+    private val connectionLiveData by lazy { ConnectionLiveData(getAppContext()) }
+
+    abstract fun getAppContext(): Context
 
     /**
      * Specify nav controller.
@@ -40,7 +43,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
         connectionLiveData.observe(this, Observer {
-            onNetworkConnected(it)
+            onNetworkChanged(it)
         })
     }
 
@@ -48,8 +51,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * Listen for network change event.
      * @param isConnected: true if connected, false otherwise.
      */
-    open fun onNetworkConnected(isConnected: Boolean) {
-
+    open fun onNetworkChanged(isConnected: Boolean) {
     }
 
     private val permissionMap = SparseArray<(Boolean) -> Unit>()
