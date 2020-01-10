@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.util.contains
 import androidx.core.util.set
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.base.util.L
@@ -144,4 +145,13 @@ abstract class BaseActivity : AppCompatActivity() {
     fun isLandscape(): Boolean =
         resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+
+    /**
+     * Observe LiveData in a cleaner way.
+     */
+    fun <T> LiveData<T>?.observe(callBack: (data: T) -> Unit) {
+        this?.observe(this@BaseActivity, Observer {
+            callBack.invoke(it)
+        })
+    }
 }

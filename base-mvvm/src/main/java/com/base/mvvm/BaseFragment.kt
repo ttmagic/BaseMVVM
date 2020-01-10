@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -74,7 +75,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         super.onViewCreated(view, savedInstanceState)
         initView()
         observeData()
-        mViewModel.viewEvent.observe(this, Observer {
+        mViewModel.viewEvent.observe(viewLifecycleOwner, Observer {
             onEvent(it) //Observe ViewModel event.
         })
     }
@@ -146,7 +147,14 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         context.toast(msgResId, lengthLong)
     }
 
-
+    /**
+     * Observe LiveData in a cleaner way.
+     */
+    fun <T> LiveData<T>?.observe(callBack: (data: T) -> Unit) {
+        this?.observe(viewLifecycleOwner, Observer {
+            callBack.invoke(it)
+        })
+    }
 
     private fun getGenericType(clazz: Class<*>): Class<*> {
         val type = clazz.genericSuperclass

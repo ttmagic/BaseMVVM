@@ -17,7 +17,10 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -358,6 +361,13 @@ fun <T> MutableLiveData<ArrayList<T>>.addAll(position: Int, items: Collection<T>
 }
 
 
-
+/**
+ * Observe liveData in a cleaner way.
+ */
+fun <T> LiveData<T>?.observe(viewLifecycleOwner: LifecycleOwner, callBack: (data: T) -> Unit) {
+    this?.observe(viewLifecycleOwner, Observer {
+        callBack.invoke(it)
+    })
+}
 
 
