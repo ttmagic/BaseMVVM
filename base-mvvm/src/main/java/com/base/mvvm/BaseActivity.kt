@@ -1,6 +1,5 @@
 package com.base.mvvm
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -25,9 +24,7 @@ import com.base.util.ifGranted
  */
 abstract class BaseActivity : AppCompatActivity() {
 
-    private val connectionLiveData by lazy { ConnectionLiveData(getAppContext()) }
-
-    abstract fun getAppContext(): Context
+    private val connectionLiveData by lazy { ConnectionLiveData(applicationContext) }
 
     /**
      * Specify nav controller.

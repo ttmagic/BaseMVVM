@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData
 import java.lang.ref.WeakReference
 
 
-internal class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
+class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
 
     private val refContext: WeakReference<Context>?
 
