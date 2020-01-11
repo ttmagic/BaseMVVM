@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.SparseArray
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -38,8 +37,8 @@ abstract class BaseActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         connectionLiveData.observe(this, Observer {
             onNetworkChanged(it)
         })
