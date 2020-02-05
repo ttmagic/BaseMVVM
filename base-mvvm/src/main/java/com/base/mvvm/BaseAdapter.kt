@@ -39,7 +39,7 @@ abstract class BaseAdapter<T : Entity>(listener: DefaultClickListener? = null) :
 
     override fun getItemViewType(position: Int): Int = layoutId()
 
-    override fun submitList(list: MutableList<T>?) {
+    override fun submitList(list: List<T>?) {
         super.submitList(list)
         notifyDataSetChanged()
     }
