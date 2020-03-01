@@ -17,7 +17,7 @@ import retrofit2.Response
 abstract class BaseViewModel(app: Application) : AndroidViewModel(app), LifecycleObserver {
     val viewEvent = LiveEvent<Event>()
 
-    val context: Context = app.applicationContext     //Use this to get application context from ViewModel
+    val context: Context? = app.applicationContext     //Use this to get application context from ViewModel
 
     private val _loading = MutableLiveData<Boolean>()
     val loading :LiveData<Boolean> = _loading

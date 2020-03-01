@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -24,6 +25,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.base.mvvm.BaseViewModel
 import kotlinx.coroutines.launch
 
 
@@ -43,14 +45,27 @@ fun Context?.toast(msg: String, lengthLong: Boolean = false) {
     }
 }
 
-/**
- * Show a toast.
- */
 fun Context?.toast(@StringRes msgResId: Int, lengthLong: Boolean = false) {
     this?.let {
         val length = if (lengthLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
         Toast.makeText(it, msgResId, length).show()
     }
+}
+
+fun Fragment.toast(msg: String, lengthLong: Boolean = false) {
+    context?.toast(msg, lengthLong)
+}
+
+fun Fragment.toast(@StringRes msgResId: Int, lengthLong: Boolean = false) {
+    context?.toast(msgResId, lengthLong)
+}
+
+fun BaseViewModel.toast(msg: String, lengthLong: Boolean = false) {
+    context?.toast(msg, lengthLong)
+}
+
+fun BaseViewModel.toast(@StringRes msgResId: Int, lengthLong: Boolean = false) {
+    context?.toast(msgResId, lengthLong)
 }
 
 /**

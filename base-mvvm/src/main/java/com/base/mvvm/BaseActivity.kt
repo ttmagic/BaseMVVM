@@ -70,9 +70,9 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     /**
-     * Use this method to request a permission.
+     * Use this method to request multi permissions.
      * @param permissions: Multiple Manifest.permission.
-     * @param onPermissionsResult : callback when request permission is done.
+     * @param onPermissionsResult : callback when request permissions is done.
      */
     fun requestMultiPermissions(
         vararg permissions: String,

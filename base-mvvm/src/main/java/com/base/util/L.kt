@@ -2,6 +2,30 @@ package com.base.util
 
 import android.util.Log
 
+fun logm(msg: Any) {
+    L.d(msg)
+}
+
+fun logv(msg: String) {
+    L.v(msg)
+}
+
+fun logd(msg: Any) {
+    L.d(msg)
+}
+
+fun logi(msg: String) {
+    L.i(msg)
+}
+
+fun loge(msg: String) {
+    L.e(msg)
+}
+
+fun logw(msg: String) {
+    L.w(msg)
+}
+
 /**
  * Helper class for Logging.
  */

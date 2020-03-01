@@ -60,7 +60,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
      * Override this method if you want your ViewModel only live in fragment's lifecycle.
      * @return true: viewModel fragment scope. false: viewModel activity scope.
      */
-    open fun isFragmentScopeViewModel(): Boolean = false
+    open fun isFragmentScopeViewModel(): Boolean = true
 
 
     override fun onCreateView(
@@ -97,14 +97,6 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         return view
     }
 
-    /**
-     * Get nav controller from activity.
-     */
-    fun navController(): NavController? {
-        if (activity == null || activity !is BaseActivity) return null
-        return (activity as BaseActivity).navController()
-    }
-
 
     /**
      * Use this method to request a permission.
@@ -118,9 +110,9 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
 
 
     /**
-     * Use this method to request a permission.
+     * Use this method to request multi permissions.
      * @param permissions: Multiple Manifest.permission.
-     * @param onPermissionsResult : callback when request permission is done.
+     * @param onPermissionsResult : callback when request permissions is done.
      */
     fun requestMultiPermissions(
         vararg permissions: String,
@@ -132,20 +124,6 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         }
     }
 
-
-    /**
-     * Show a toast.
-     */
-    fun toast(msg: String, lengthLong: Boolean = false) {
-        context.toast(msg, lengthLong)
-    }
-
-    /**
-     * Show a toast.
-     */
-    fun toast(@StringRes msgResId: Int, lengthLong: Boolean = false) {
-        context.toast(msgResId, lengthLong)
-    }
 
     /**
      * Observe LiveData in a cleaner way.
