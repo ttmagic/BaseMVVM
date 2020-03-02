@@ -165,6 +165,6 @@ object Pref {
 
 
     private fun checkInit() {
-        if (preferences == null) throw Exception("Please init Pref before using.")
+        if (preferences == null) throw Exception("Please call Pref.init before first usage.")
     }
 }

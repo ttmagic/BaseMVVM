@@ -23,7 +23,7 @@ abstract class Entity {
  * T: Model's type.
  * layout data binding xml: variable name = "item", type = T.
  */
-abstract class BaseAdapter<T : Entity>(listener: DefaultClickListener? = null) :
+abstract class BaseAdapter<T : Entity>(@LayoutRes private val layoutRes: Int, listener: DefaultClickListener? = null) :
     ListAdapter<T, BaseAdapter.BaseViewHolder<T>>(object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem.uniqueId == newItem.uniqueId
@@ -34,10 +34,7 @@ abstract class BaseAdapter<T : Entity>(listener: DefaultClickListener? = null) :
     }) {
     private val mListener = listener
 
-    abstract fun layoutId(): Int
-    @LayoutRes
-
-    override fun getItemViewType(position: Int): Int = layoutId()
+    override fun getItemViewType(position: Int): Int = layoutRes
 
     override fun submitList(list: List<T>?) {
         super.submitList(list)

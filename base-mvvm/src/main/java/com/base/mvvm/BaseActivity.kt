@@ -13,7 +13,7 @@ import androidx.core.util.set
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
-import com.base.util.L
+import com.base.util.Logger
 import com.base.util.PermissionUtil
 import com.base.util.ifGranted
 
@@ -89,7 +89,7 @@ abstract class BaseActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        L.d("requestCode: $requestCode permissions: $permissions grantResults: $grantResults")
+        Logger.d("requestCode: $requestCode permissions: $permissions grantResults: $grantResults")
         if (!permissionMap.contains(requestCode)) return
 
         //Multiple permissions

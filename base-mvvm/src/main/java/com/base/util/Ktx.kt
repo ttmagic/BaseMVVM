@@ -17,15 +17,12 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.base.mvvm.BaseViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -154,11 +151,11 @@ fun View?.hideKeyboard() {
 /**
  * Set click listener for view, prevent double click.
  */
-fun View?.onClick(doSth: () -> Unit) {
+fun View?.onClick(doSth: (View) -> Unit) {
     if (this == null) return
     this.setOnClickListener {
         it.isEnabled = false
-        doSth()
+        doSth(it)
         it.postDelayed({
             it.isEnabled = true
         }, 500)
@@ -170,10 +167,10 @@ fun View?.onClick(doSth: () -> Unit) {
  * @param lifecycleScope: LifecycleCoroutineScope for run coroutines.
  * @param doSomething: suspend function.
  */
-fun View?.onClickSuspend(lifecycleScope: LifecycleCoroutineScope, doSomething: suspend () -> Unit) {
+fun View?.onClick(lifecycleScope: LifecycleCoroutineScope, doSomething: suspend () -> Unit) {
     if (this == null) return
     this.setOnClickListener {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             it.isEnabled = false
             doSomething()
             it.isEnabled = true //Enable view after suspend fun finish.
@@ -204,7 +201,7 @@ fun View?.onKeyboardShow(isKeyboardShow: (show: Boolean, height: Int) -> Unit) {
 /**
  * Show keyboard on edit text.
  */
-fun EditText?.showKeyboard(){
+fun EditText?.showKeyboard() {
     this?.let {
         it.requestFocus()
         val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -259,7 +256,6 @@ fun TextView.setTextColorRes(@ColorRes colorRes: Int) {
 }
 
 
-
 //-----------------------------------------------------------
 //--Extensions for LiveData of Int.
 
@@ -290,7 +286,6 @@ operator fun MutableLiveData<Int>.inc(): MutableLiveData<Int> {
 }
 
 
-
 //--Extensions for LiveData of Boolean.
 /**
  * Switch true/false state for MutableLiveData of Boolean.
@@ -302,7 +297,6 @@ fun MutableLiveData<Boolean>.switchState() {
 }
 
 
-
 //--Extensions for LiveData of ArrayList.
 
 /**
@@ -310,7 +304,7 @@ fun MutableLiveData<Boolean>.switchState() {
  */
 val <T> MutableLiveData<ArrayList<T>>.size: Int
     get() {
-        if(this.value.isNullOrEmpty())return 0
+        if (this.value.isNullOrEmpty()) return 0
         return this.value!!.size
     }
 

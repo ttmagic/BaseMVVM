@@ -4,43 +4,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import com.base.util.toast
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
+import com.base.util.onClick
 import java.lang.reflect.ParameterizedType
 
 /**
  * Base Fragment Support ViewModel and Data Binding.
  * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
  */
-abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment() {
+abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes private val layoutRes: Int) :
+    Fragment() {
 
-    protected lateinit var mViewModel: VM
-    protected lateinit var mViewBinding: B
-
-    /**
-     * Get layout resource id for fragment
-     */
-    @LayoutRes
-    abstract fun layoutId(): Int
+    protected lateinit var viewModel: VM
+    protected lateinit var binding: B
 
     /**
      * Set BR.variable ID for data binding.
      */
-    abstract fun brVariableId():Int
-
+    abstract fun brVariableId(): Int
 
     /**
      * Initiate view. This method is called in child classes for initiate view of child fragment
      */
-    abstract fun initView()
+    abstract fun initView(binding: B)
 
     /**
      * Do logic observe data.
@@ -53,7 +49,22 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
      * Override this function to handle event from ViewModel.
      */
     open fun onEvent(event: Event) {
+        when (event.type) {
 
+            Type.NAVIGATE_SCREEN -> {   //Handle navigate screen.
+                if (event.data is NavDirections) {
+                    findNavController().navigate(event.data as NavDirections)
+                } else if (event.data is Pair<*, *>) {
+                    (event.data as Pair<*, *>?)?.let {
+                        if (it.first is @IdRes Int && it.second is Bundle?) {
+                            findNavController().navigate(it.first as Int, it.second as Bundle?)
+                        }
+                    }
+                }
+            }
+
+
+        }
     }
 
     /**
@@ -68,33 +79,30 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return setupView(inflater, container, layoutId())
+        return setupView(inflater, container, layoutRes)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(binding)
         observeData()
-        mViewModel.viewEvent.observe(viewLifecycleOwner, Observer {
+        viewModel.viewEvent.observe(viewLifecycleOwner, Observer {
             onEvent(it) //Observe ViewModel event.
         })
     }
 
-
     private fun setupView(inflater: LayoutInflater, container: ViewGroup?, layoutId: Int): View? {
-        val view: View?
-        mViewBinding = DataBindingUtil.inflate(inflater, layoutId, container, false)
-        mViewModel =
+        binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
+        viewModel =
             if (isFragmentScopeViewModel()) ViewModelProvider(this).get(getGenericType(javaClass) as Class<VM>)
             else ViewModelProvider(activity!!).get(getGenericType(javaClass) as Class<VM>)
 
-        viewLifecycleOwner.lifecycle.addObserver(mViewModel)
+        viewLifecycleOwner.lifecycle.addObserver(viewModel)
 
-        mViewBinding.setVariable(brVariableId(), mViewModel)
-        mViewBinding.lifecycleOwner = this
-        view = mViewBinding.root
+        binding.setVariable(brVariableId(), viewModel)
+        binding.lifecycleOwner = this
 
-        return view
+        return binding.root
     }
 
 
@@ -104,7 +112,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
      * @param onPermissionResult : callback when request permission is done.
      */
     fun requestPermission(permission: String, onPermissionResult: (granted: Boolean) -> Unit) {
-        if (activity == null||activity !is BaseActivity) return
+        if (activity == null || activity !is BaseActivity) return
         (activity as BaseActivity).requestPermission(permission, onPermissionResult)
     }
 
@@ -138,5 +146,14 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding> : Fragment(
         val type = clazz.genericSuperclass
         val paramType = type as ParameterizedType
         return paramType.actualTypeArguments[0] as Class<*>
+    }
+
+    /**
+     * Set onCLick with suspend function. The view will be disabled until suspend fun complete.
+     */
+    private fun View?.onClick(suspendFun: suspend () -> Unit) {
+        this.onClick(lifecycleScope) {
+            suspendFun.invoke()
+        }
     }
 }

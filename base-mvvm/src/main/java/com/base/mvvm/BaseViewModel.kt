@@ -2,8 +2,11 @@ package com.base.mvvm
 
 import android.app.Application
 import android.content.Context
+import android.os.Bundle
+import androidx.annotation.IdRes
 import androidx.lifecycle.*
-import com.base.util.L
+import androidx.navigation.NavDirections
+import com.base.util.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -17,21 +20,29 @@ import retrofit2.Response
 abstract class BaseViewModel(app: Application) : AndroidViewModel(app), LifecycleObserver {
     val viewEvent = LiveEvent<Event>()
 
-    val context: Context? = app.applicationContext     //Use this to get application context from ViewModel
+    val context: Context? =
+        app.applicationContext     //Use this to get application context from ViewModel
 
     private val _loading = MutableLiveData<Boolean>()
-    val loading :LiveData<Boolean> = _loading
+    val isLoading: LiveData<Boolean> = _loading
 
-    fun isLoading(isLoading: Boolean = true) {
-        _loading.postValue(isLoading)
+    fun setLoading(loading: Boolean = true) {
+        _loading.postValue(loading)
     }
 
 
     /**
-     * Use this method to fire event to View (Activity/Fragment)
+     * Use this method to fire event to View (Activity/Fragment). Listen in onEvent()
      */
     fun sendEvent(event: Event) {
         viewEvent.postValue(event)
+    }
+
+    /**
+     * Use this method to fire event to View (Activity/Fragment). Listen in onEvent()
+     */
+    fun sendEvent(event: String, data: Any?) {
+        viewEvent.postValue(Event(event, data))
     }
 
 
@@ -79,25 +90,21 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
     fun coroutines(block: suspend CoroutineScope.() -> Unit): Job {
         return viewModelScope.launch {
             try {
-                isLoading(true)
+                setLoading(true)
                 block()
             } catch (e: Exception) {
-                e.message?.let {
-                    L.e(it)
-                }
                 onCoroutinesExceptions(e)
-                isLoading(false)
-
+                setLoading(false)
             }
-            isLoading(false)
+            setLoading(false)
         }
     }
 
     /**
      * Handle exception when launch coroutines.
      */
-    open fun onCoroutinesExceptions(e: Exception) {
-
+    open fun onCoroutinesExceptions(error: Exception) {
+        Logger.e(error.message)
     }
 }
 
@@ -105,7 +112,7 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
  * Extension function, Do something when network call response succeed.
  */
 fun <T> Response<T>.onSucceed(doSth: (T) -> Unit): Response<T> {
-    L.d("Response code: ${code()} body: ${body()}")
+    Logger.d("Response code: ${code()} body: ${body()}")
     if (isSuccessful && body() != null) {
         doSth(body()!!)
     }
@@ -121,4 +128,25 @@ fun <T> Response<T>.onFailed(errCode: (Int) -> Unit): Response<T> {
         errCode(code())
     }
     return this
+}
+
+/**
+ * Navigate screen using Jetpack Navigation
+ */
+fun BaseViewModel.navigate(@IdRes resId: Int) {
+    sendEvent(Type.NAVIGATE_SCREEN, Pair<@IdRes Int, Bundle?>(resId, null))
+}
+
+/**
+ * Navigate screen using Jetpack Navigation
+ */
+fun BaseViewModel.navigate(@IdRes resId: Int, args: Bundle?) {
+    sendEvent(Type.NAVIGATE_SCREEN, Pair(resId, args))
+}
+
+/**
+ * Navigate screen using Jetpack Navigation
+ */
+fun BaseViewModel.navigate(navDirections: NavDirections) {
+    sendEvent(Type.NAVIGATE_SCREEN, navDirections)
 }

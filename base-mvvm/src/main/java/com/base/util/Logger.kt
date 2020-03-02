@@ -2,34 +2,34 @@ package com.base.util
 
 import android.util.Log
 
-fun logm(msg: Any) {
-    L.d(msg)
+fun logm(msg: Any?) {
+    Logger.d(msg)
 }
 
-fun logv(msg: String) {
-    L.v(msg)
+fun logv(msg: Any?) {
+    Logger.v(msg)
 }
 
-fun logd(msg: Any) {
-    L.d(msg)
+fun logd(msg: Any?) {
+    Logger.d(msg)
 }
 
-fun logi(msg: String) {
-    L.i(msg)
+fun logi(msg: Any?) {
+    Logger.i(msg)
 }
 
-fun loge(msg: String) {
-    L.e(msg)
+fun loge(msg: Any?) {
+    Logger.e(msg)
 }
 
-fun logw(msg: String) {
-    L.w(msg)
+fun logw(msg: Any?) {
+    Logger.w(msg)
 }
 
 /**
  * Helper class for Logging.
  */
-object L {
+object Logger {
 
     private var mClassName: String = ""
     private var mMethodName: String = ""
@@ -42,7 +42,7 @@ object L {
     }
 
 
-    fun e(message: String) {
+    fun e(message: Any?) {
         if (!mIsDebugging) return
 
         // Throwable instance must be created before any methods
@@ -50,28 +50,28 @@ object L {
         Log.e(mClassName, createLog(message))
     }
 
-    fun i(message: String) {
+    fun i(message: Any?) {
         if (!mIsDebugging) return
 
         getLogInfo(Throwable().stackTrace)
         Log.i(mClassName, createLog(message))
     }
 
-    fun v(message: String) {
+    fun v(message: Any?) {
         if (!mIsDebugging) return
 
         getLogInfo(Throwable().stackTrace)
         Log.v(mClassName, createLog(message))
     }
 
-    fun w(message: String) {
+    fun w(message: Any?) {
         if (!mIsDebugging) return
 
         getLogInfo(Throwable().stackTrace)
         Log.w(mClassName, createLog(message))
     }
 
-    fun d(obj: Any) {
+    fun d(obj: Any?) {
         if (!mIsDebugging) return
 
         getLogInfo(Throwable().stackTrace)
@@ -79,8 +79,8 @@ object L {
     }
 
 
-    private fun createLog(log: String): String {
-        return "[$mMethodName:$mLineNumber] $log"
+    private fun createLog(log: Any?): String {
+        return "[$mMethodName:$mLineNumber] ${log.toString()}"
     }
 
     private fun getLogInfo(sElements: Array<StackTraceElement>) {

@@ -1,6 +1,7 @@
 package com.base.mvvm
 
 import android.app.Application
+import com.base.util.Logger
 import com.base.util.Pref
 
 
@@ -13,13 +14,19 @@ abstract class BaseApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Pref.init(applicationContext, applicationId())
+        Pref.init(applicationContext, appId())
+        Logger.setDebugging(isDebug())
     }
 
 
     /**
      * Specify application id for init shared preferences.
      */
-    abstract fun applicationId(): String
+    abstract fun appId(): String
+
+    /**
+     * Set debugging for the whole application.
+     */
+    abstract fun isDebug():Boolean
 
 }
