@@ -1,12 +1,20 @@
 package com.base.util
 
 import android.app.Activity
+import android.app.DownloadManager
+import android.app.NotificationManager
+import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.Rect
+import android.hardware.display.DisplayManager
+import android.hardware.input.InputManager
+import android.location.LocationManager
+import android.os.PowerManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -14,6 +22,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -22,6 +31,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.base.mvvm.BaseViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -104,6 +114,46 @@ private fun Context.getDisplaySize(): Point {
  */
 fun Context.ifGranted(permission: String): Boolean {
     return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+}
+
+
+//------Context - System services
+
+fun Context.displayManager(): DisplayManager {
+    return this.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+}
+
+fun Context.downloadManager(): DownloadManager {
+    return this.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+}
+
+fun Context.locationManager(): LocationManager {
+    return this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+}
+
+fun Context.inputManager(): InputManager {
+    return this.getSystemService(Context.INPUT_SERVICE) as InputManager
+}
+
+fun Context.inputMethodManager(): InputMethodManager {
+    return this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+}
+
+@RequiresApi(23)
+fun Context.networkStatsManager(): NetworkStatsManager {
+    return this.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
+}
+
+fun Context.notificationManager(): NotificationManager {
+    return this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+}
+
+fun Context.powerManager(): PowerManager {
+    return this.getSystemService(Context.POWER_SERVICE) as PowerManager
+}
+
+fun Context.layoutInflater(): LayoutInflater {
+    return this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 }
 
 
@@ -380,3 +430,6 @@ fun <T> LiveData<T>?.observe(viewLifecycleOwner: LifecycleOwner, callBack: (data
 }
 
 
+fun Any?.toJson(): String {
+    return Gson().toJson(this)
+}

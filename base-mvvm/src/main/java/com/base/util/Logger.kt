@@ -3,33 +3,46 @@ package com.base.util
 import android.util.Log
 
 fun logm(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.d(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 fun logv(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.v(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 fun logd(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.d(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 fun logi(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.i(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 fun loge(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.e(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 fun logw(msg: Any?) {
+    Logger.setSkipFirstMethod(true)
     Logger.w(msg)
+    Logger.setSkipFirstMethod(false)
 }
 
 /**
  * Helper class for Logging.
  */
 object Logger {
+    private var isSkipFirstMethod = false   //Skip first method call in stack trace or not.
 
     private var mClassName: String = ""
     private var mMethodName: String = ""
@@ -84,9 +97,11 @@ object Logger {
     }
 
     private fun getLogInfo(sElements: Array<StackTraceElement>) {
-        mClassName = getClassName(sElements[1].className) ?: sElements[1].fileName
-        mMethodName = getMethodName(sElements[1].className) ?: sElements[1].methodName
-        mLineNumber = sElements[1].lineNumber
+        val i = if (isSkipFirstMethod) 2 else 1
+
+        mClassName = getClassName(sElements[i].className) ?: sElements[i].fileName
+        mMethodName = getMethodName(sElements[i].className) ?: sElements[i].methodName
+        mLineNumber = sElements[i].lineNumber
     }
 
     /**
@@ -118,6 +133,10 @@ object Logger {
         } else {
             null
         }
+    }
+
+    fun setSkipFirstMethod(skip: Boolean) {
+        this.isSkipFirstMethod = skip
     }
 
 }
