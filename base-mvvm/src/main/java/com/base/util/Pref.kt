@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.base.util.Pref.init
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+
 
 /**
  * Util for Shared Preferences.
@@ -21,7 +24,6 @@ object Pref {
     fun init(context: Context, sharedPrefName: String) {
         preferences = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE)
     }
-
 
 
     /**
@@ -97,6 +99,7 @@ object Pref {
      */
     // Get Data
     inline fun <reified T> getObj(key: String, myClass: Class<T>): T? {
+        if (preferences == null) return null
         val json = preferences!!.getString(key, null)
         return if (json.isNullOrEmpty()) null else Gson().fromJson(json, myClass)
     }
@@ -118,6 +121,24 @@ object Pref {
         }
 
     }
+
+    fun putList(key: String, value: List<Any?>?) {
+        if (value != null) {
+            val json = Gson().toJson(value)
+            preferences!!.edit().putString(key, json).apply()
+        } else {
+            preferences!!.edit().putString(key, null).apply()
+        }
+    }
+
+    inline fun <reified T> getList(key: String, myClass: Class<T>): List<T?>? {
+        if (preferences == null) return null
+
+        val type: Type = object : TypeToken<List<T?>?>() {}.type
+        val json = preferences!!.getString(key, null)
+        return Gson().fromJson(json, type)
+    }
+
 
     /**
      * Save data.

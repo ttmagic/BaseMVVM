@@ -1,6 +1,7 @@
 package com.base.util
 
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.DownloadManager
 import android.app.NotificationManager
 import android.app.usage.NetworkStatsManager
@@ -8,10 +9,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.Rect
+import android.hardware.SensorManager
 import android.hardware.display.DisplayManager
 import android.hardware.input.InputManager
 import android.location.LocationManager
+import android.media.AudioManager
 import android.os.PowerManager
+import android.telephony.TelephonyManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -118,6 +122,26 @@ fun Context.ifGranted(permission: String): Boolean {
 
 
 //------Context - System services
+
+fun Context.alarmManager(): AlarmManager {
+    return this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+}
+
+fun Context.audioManager(): AudioManager {
+    return this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+}
+
+fun Context.sensorManager(): SensorManager {
+    return this.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+}
+
+fun Context.telephonyManager(): TelephonyManager {
+    return this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+}
+
+fun Context.windowManager(): WindowManager {
+    return this.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+}
 
 fun Context.displayManager(): DisplayManager {
     return this.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
