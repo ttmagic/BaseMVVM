@@ -78,6 +78,14 @@ abstract class BaseActivity : AppCompatActivity() {
         vararg permissions: String,
         onPermissionsResult: (allGranted: Boolean) -> Unit
     ) {
+        //Check if all are granted
+        var allAreGranted = true
+        permissions.forEach { if (!this.ifGranted(it)) allAreGranted = false }
+        if (allAreGranted) {
+            onPermissionsResult.invoke(true)
+            return
+        }
+
         val requestCode = PermissionUtil.MULTI_PERMISSION_REQUEST_CODE
         ActivityCompat.requestPermissions(this, permissions, requestCode)
         permissionMap[requestCode] = onPermissionsResult

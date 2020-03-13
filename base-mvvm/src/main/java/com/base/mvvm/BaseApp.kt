@@ -14,15 +14,9 @@ abstract class BaseApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Pref.init(applicationContext, appId())
+        Pref.init(applicationContext)
         Logger.setDebugging(isDebug())
     }
-
-
-    /**
-     * Specify application id for init shared preferences.
-     */
-    abstract fun appId(): String
 
     /**
      * Set debugging for the whole application.

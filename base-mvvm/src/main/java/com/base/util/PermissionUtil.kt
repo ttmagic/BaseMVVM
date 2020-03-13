@@ -1,7 +1,14 @@
 package com.base.util
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 
 
 object PermissionUtil {
@@ -65,5 +72,46 @@ object PermissionUtil {
                 add(Manifest.permission.ACTIVITY_RECOGNITION)
             }
         }
+    }
+}
+
+/**
+ * Open app setting screen. (Intent.ACTION_APPLICATION_DETAILS_SETTINGS).
+ * @return true if handled.
+ */
+fun Context?.openAppSettingScreen(): Boolean {
+    if (this == null) return false
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    val uri: Uri = Uri.fromParts("package", applicationInfo.packageName, null)
+    intent.data = uri
+    startActivity(intent)
+    return true
+}
+
+/**
+ * Open app setting screen, from fragment.
+ */
+fun Fragment?.openAppSettingScreen(): Boolean {
+    if (this == null || context == null) return false
+    return context.openAppSettingScreen()
+}
+
+/**
+ * Check if a permission is "Never ask again".
+ */
+fun Activity?.ifNeverAskedAgain(permission: String, doSth: () -> Unit) {
+    if (this == null) return
+    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+        doSth.invoke()
+    }
+}
+
+/**
+ * Check if a permission is "Never ask again".
+ */
+fun Fragment?.ifNeverAskedAgain(permission: String, doSth: () -> Unit) {
+    if (this == null || this.activity == null) return
+    if (!ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), permission)) {
+        doSth.invoke()
     }
 }
