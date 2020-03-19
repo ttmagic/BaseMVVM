@@ -10,15 +10,14 @@ import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.base.util.onClick
 import java.lang.reflect.ParameterizedType
 
+const val NAV_RESULT = "result"
 /**
  * Base Fragment Support ViewModel and Data Binding.
  * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
@@ -51,7 +50,6 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
      */
     open fun onEvent(event: Event) {
         when (event.type) {
-
             Type.NAVIGATE_SCREEN -> {   //Handle navigate screen.
                 if (event.data is NavDirections) {
                     findNavController().navigate(event.data as NavDirections)
@@ -63,7 +61,6 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
                     }
                 }
             }
-
 
         }
     }
@@ -87,6 +84,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
         super.onViewCreated(view, savedInstanceState)
         initView(binding)
         observeData()
+        listenNavigateResult()
         viewModel.viewEvent.observe(viewLifecycleOwner, Observer {
             onEvent(it) //Observe ViewModel event.
         })
@@ -105,6 +103,45 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
         binding.lifecycleOwner = this
 
         return binding.root
+    }
+
+
+    //Callback for navigate for result.
+    private var navigateResultCallback: ((Any?) -> Unit)? = null
+    private fun listenNavigateResult() {
+        val navBackStackEntry = findNavController().currentBackStackEntry!!
+        navBackStackEntry.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME
+                && navBackStackEntry.savedStateHandle.contains(NAV_RESULT)
+            ) {
+                val result = navBackStackEntry.savedStateHandle.get<Any?>(NAV_RESULT)
+                onNavigateResult(result)
+                navigateResultCallback?.invoke(result)
+                navBackStackEntry.savedStateHandle.remove<Any?>(NAV_RESULT)
+            }
+        })}
+
+
+    /**
+     * Override this method to listen to navigate result.
+     */
+    open fun onNavigateResult(data: Any?) {
+
+    }
+
+    /**
+     * Set navigate result.
+     */
+    fun setResult(data: Any?) {
+        findNavController().previousBackStackEntry?.savedStateHandle?.set(NAV_RESULT, data)
+    }
+
+    /**
+     * Navigate back / Navigate up with result.
+     */
+    fun navigateBackWithResult(data: Any?) {
+        setResult(data)
+        findNavController().navigateUp()
     }
 
 
@@ -158,4 +195,37 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
             suspendFun.invoke()
         }
     }
+
+
+
+    /**
+     * Navigate for result with callback.
+     */
+    private fun NavController.navigateForResult(@IdRes resId: Int, callBack: (Any?) -> Unit) {
+        navigate(resId)
+        navigateResultCallback = callBack
+    }
+
+    /**
+     * Navigate for result with callback.
+     */
+    private fun NavController.navigateForResult(
+        @IdRes resId: Int, args: Bundle?,
+        callBack: (Any?) -> Unit
+    ) {
+        navigate(resId, args)
+        navigateResultCallback = callBack
+    }
+
+    /**
+     * Navigate for result with callback.
+     */
+    private fun NavController.navigateForResult(
+        navDirections: NavDirections,
+        callBack: (Any?) -> Unit
+    ) {
+        navigate(navDirections)
+        navigateResultCallback = callBack
+    }
+
 }
