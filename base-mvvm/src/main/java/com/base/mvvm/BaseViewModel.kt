@@ -18,10 +18,14 @@ import retrofit2.Response
  * Guide to app architecture: https://developer.android.com/jetpack/docs/guide
  */
 abstract class BaseViewModel(app: Application) : AndroidViewModel(app), LifecycleObserver {
+    //Hold arguments From fragment.
+    lateinit var args: Bundle
+
+    //Fire single event to corresponding Fragment.
     val viewEvent = LiveEvent<Event>()
 
-    val context: Context? =
-        app.applicationContext     //Use this to get application context from ViewModel
+    //Use this to get app context from ViewModel
+    val context: Context = app.applicationContext
 
     private val _loading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _loading
@@ -149,4 +153,18 @@ fun BaseViewModel.navigate(@IdRes resId: Int, args: Bundle?) {
  */
 fun BaseViewModel.navigate(navDirections: NavDirections) {
     sendEvent(Type.NAVIGATE_SCREEN, navDirections)
+}
+
+//Get data from bundle
+inline fun <reified T> Bundle?.get(key: String): T? {
+    return if (this != null && containsKey(key) && (get(key) is T)) {
+        get(key) as T?
+    } else {
+        null
+    }
+}
+
+//Get live data from bundle
+inline fun <reified T> Bundle?.getLiveData(key: String): MutableLiveData<T?> {
+    return MutableLiveData(this.get(key))
 }

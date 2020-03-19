@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
@@ -97,6 +98,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
             if (isFragmentScopeViewModel()) ViewModelProvider(this).get(getGenericType(javaClass) as Class<VM>)
             else ViewModelProvider(activity!!).get(getGenericType(javaClass) as Class<VM>)
 
+        viewModel.args = arguments?: bundleOf()
         viewLifecycleOwner.lifecycle.addObserver(viewModel)
 
         binding.setVariable(brVariableId(), viewModel)
