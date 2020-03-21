@@ -7,7 +7,7 @@ import com.base.mvvm.LiveEvent
 /**
  * Same as LiveData.observe, but include removeObservers.
  */
-fun LiveEvent<Any>?.subscribeWith(lifecycleOwner: LifecycleOwner, callBack: (Any) -> Unit) {
+fun LiveEvent<Any>?.subscribeWith(lifecycleOwner: LifecycleOwner, callBack: (Any?) -> Unit) {
     this?.removeObservers(lifecycleOwner)
     this?.observe(lifecycleOwner, Observer {
         callBack.invoke(it)
