@@ -138,7 +138,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Observe LiveData in a cleaner way.
      */
-    fun <T> LiveData<T>?.observe(callBack: (data: T) -> Unit) {
+    fun <T> LiveData<T?>?.observe(callBack: (data: T?) -> Unit) {
         this?.observe(viewLifecycleOwner, Observer {
             callBack.invoke(it)
         })
