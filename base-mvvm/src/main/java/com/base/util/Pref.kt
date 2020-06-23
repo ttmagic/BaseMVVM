@@ -2,8 +2,6 @@ package com.base.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
 import com.base.util.Pref.init
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -16,9 +14,6 @@ import java.lang.reflect.Type
  * @see init
  */
 object Pref {
-    private val keyGenParameterSpec = MasterKeys.AES256_GCM_SPEC
-    private val masterKeyAlias = MasterKeys.getOrCreate(keyGenParameterSpec)
-
     var preferences: SharedPreferences? = null
         private set
 
@@ -26,14 +21,7 @@ object Pref {
      * Init before use.
      */
     fun init(context: Context) {
-        preferences = EncryptedSharedPreferences
-            .create(
-                context.applicationInfo.packageName,
-                masterKeyAlias,
-                context,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
+        preferences = context.getSharedPreferences(context.applicationInfo.packageName, Context.MODE_PRIVATE)
     }
 
 
