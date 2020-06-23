@@ -94,7 +94,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
         viewModel =
             if (isFragmentScopeViewModel()) ViewModelProvider(this).get(getGenericType(javaClass) as Class<VM>)
-            else ViewModelProvider(activity!!).get(getGenericType(javaClass) as Class<VM>)
+            else ViewModelProvider(requireActivity()).get(getGenericType(javaClass) as Class<VM>)
 
         viewModel.args = arguments?: bundleOf()
         viewLifecycleOwner.lifecycle.addObserver(viewModel)
