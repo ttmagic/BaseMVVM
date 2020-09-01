@@ -10,6 +10,7 @@ import com.base.util.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import retrofit2.Response
 
 
@@ -45,8 +46,8 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
     /**
      * Use this method to fire event to View (Activity/Fragment). Listen in onEvent()
      */
-    fun sendEvent(event: String, data: Any?) {
-        viewEvent.postValue(Event(event, data))
+    fun sendEvent(key: String, data: Any?) {
+        viewEvent.postValue(Event(key, data))
     }
 
 
@@ -87,8 +88,8 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
     }
 
     /**
-     * Wrapper method for launch coroutines.
-     * Support show/hide loading, catch exceptions.
+     * Wrapper method for launch coroutines, without handle exception.
+     * Support show/hide loading.
      * Handle exceptions in onCoroutinesExceptions.
      */
     fun coroutines(block: suspend CoroutineScope.() -> Unit): Job {
@@ -97,7 +98,9 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
                 setLoading(true)
                 block()
             } catch (e: Exception) {
-                onCoroutinesExceptions(e)
+                e.message?.let {
+                    Logger.e(it)
+                }
                 setLoading(false)
             }
             setLoading(false)
@@ -105,10 +108,27 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Lifecycl
     }
 
     /**
-     * Handle exception when launch coroutines.
+     * Wrapper method for launch coroutines, handle exception.
+     * Support show/hide loading.
+     * Handle exceptions in onCoroutinesExceptions.
      */
-    open fun onCoroutinesExceptions(error: Exception) {
-        Logger.e(error.message)
+    fun coroutines(
+        block: suspend CoroutineScope.() -> Unit,
+        onException: ((e: Exception) -> Unit)? = null
+    ): Job {
+        return viewModelScope.launch {
+            try {
+                setLoading(true)
+                block()
+            } catch (e: Exception) {
+                e.message?.let {
+                    Logger.e(it)
+                }
+                onException?.invoke(e)
+                setLoading(false)
+            }
+            setLoading(false)
+        }
     }
 }
 
@@ -127,9 +147,9 @@ fun <T> Response<T>.onSucceed(doSth: (T) -> Unit): Response<T> {
 /**
  * Extension function, Do something when network call response failed.
  */
-fun <T> Response<T>.onFailed(errCode: (Int) -> Unit): Response<T> {
+fun <T> Response<T>.onFailed(errDetail: (errCode: Int, errBody: ResponseBody?) -> Unit): Response<T> {
     if (!isSuccessful || body() == null) {
-        errCode(code())
+        errDetail(code(), errorBody())
     }
     return this
 }

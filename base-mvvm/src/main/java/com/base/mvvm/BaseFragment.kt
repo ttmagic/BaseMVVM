@@ -26,7 +26,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     Fragment() {
 
     protected lateinit var viewModel: VM
-    protected lateinit var binding: B
+    protected var binding: B? = null
 
     /**
      * Set BR.variable ID for data binding.
@@ -36,7 +36,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Initiate view. This method is called in child classes for initiate view of child fragment
      */
-    abstract fun initView(binding: B)
+    abstract fun initView(binding: B?)
 
     /**
      * Do logic observe data.
@@ -99,10 +99,15 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
         viewModel.args = arguments?: bundleOf()
         viewLifecycleOwner.lifecycle.addObserver(viewModel)
 
-        binding.setVariable(brVariableId(), viewModel)
-        binding.lifecycleOwner = this
+        binding?.setVariable(brVariableId(), viewModel)
+        binding?.lifecycleOwner = this
 
-        return binding.root
+        return binding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
 
@@ -190,7 +195,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Set onCLick with suspend function. The view will be disabled until suspend fun complete.
      */
-    private fun View?.onClick(suspendFun: suspend () -> Unit) {
+    fun View?.onClick(suspendFun: suspend () -> Unit) {
         this.onClick(lifecycleScope) {
             suspendFun.invoke()
         }
@@ -201,7 +206,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Navigate for result with callback.
      */
-    private fun NavController.navigateForResult(@IdRes resId: Int, callBack: (Any?) -> Unit) {
+    fun NavController.navigateForResult(@IdRes resId: Int, callBack: (Any?) -> Unit) {
         navigate(resId)
         navigateResultCallback = callBack
     }
@@ -209,7 +214,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Navigate for result with callback.
      */
-    private fun NavController.navigateForResult(
+    fun NavController.navigateForResult(
         @IdRes resId: Int, args: Bundle?,
         callBack: (Any?) -> Unit
     ) {
@@ -220,7 +225,7 @@ abstract class BaseFragment<VM : BaseViewModel, B : ViewDataBinding>(@LayoutRes 
     /**
      * Navigate for result with callback.
      */
-    private fun NavController.navigateForResult(
+    fun NavController.navigateForResult(
         navDirections: NavDirections,
         callBack: (Any?) -> Unit
     ) {

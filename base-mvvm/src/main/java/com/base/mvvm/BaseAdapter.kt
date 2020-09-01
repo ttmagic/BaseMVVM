@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Base Entity for Adapter's list item data.
  */
-abstract class Entity {
+abstract class Model {
     abstract val uniqueId: Any
 }
 
@@ -23,7 +23,7 @@ abstract class Entity {
  * T: Model's type.
  * layout data binding xml: variable name = "item", type = T.
  */
-abstract class BaseAdapter<T : Entity>(@LayoutRes private val layoutRes: Int, listener: DefaultClickListener? = null) :
+abstract class BaseAdapter<T : Model>(@LayoutRes private val layoutRes: Int, listener: DefaultClickListener? = null) :
     ListAdapter<T, BaseAdapter.BaseViewHolder<T>>(object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem.uniqueId == newItem.uniqueId
